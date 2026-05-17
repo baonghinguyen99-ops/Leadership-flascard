@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flashcard: Từ Phản ứng → Sáng tạo</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #028090;
+    --teal-dark: #016070;
+    --teal-light: #e0f4f7;
+    --orange: #E8724A;
+    --green: #2C8C5E;
+    --white: #ffffff;
+    --gray-light: #f5f8f9;
+    --gray-text: #4a5568;
+    --card-w: 340px;
+    --card-h: 490px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: #f0f6f8;
+    min-height: 100vh;
+    padding: 32px 16px 60px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .header-badge {
+    display: inline-block;
+    background: var(--teal);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .header h1 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #1a2e35;
+    line-height: 1.3;
+  }
+  .header h1 span { color: var(--teal); }
+  .header p {
+    color: var(--gray-text);
+    font-size: 13px;
+    margin-top: 8px;
+    font-weight: 500;
+  }
+
+  /* Navigation */
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 36px;
+  }
+  .nav-btn {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    border: 2px solid var(--teal);
+    background: white;
+    color: var(--teal);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    font-weight: 700;
+  }
+  .nav-btn:hover { background: var(--teal); color: white; }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .nav-btn:disabled:hover { background: white; color: var(--teal); }
+
+  .counter {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--teal);
+    min-width: 80px;
+    text-align: center;
+  }
+
+  /* Progress dots */
+  .dots {
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+    margin-bottom: 32px;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #c8dde1;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .dot.active { background: var(--teal); transform: scale(1.3); }
+  .dot.done { background: #7bbec8; }
+
+  /* Card stage */
+  .stage {
+    display: flex;
+    justify-content: center;
+    perspective: 1200px;
+    margin-bottom: 24px;
+  }
+
+  .card-wrap {
+    width: var(--card-w);
+    height: var(--card-h);
+    position: relative;
+    cursor: pointer;
+  }
+
+  .card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(2, 128, 144, 0.18), 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .card.flipped { transform: rotateY(180deg); }
+
+  .face {
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* FRONT */
+  .front {
+    background: white;
+  }
+  .front-top {
+    background: var(--teal);
+    padding: 22px 26px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .card-number {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,0.65);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .front-top-icon {
+    width: 46px; height: 46px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .front-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.22);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+  }
+  .front-question {
+    font-size: 15px;
+    font-weight: 700;
+    color: white;
+    line-height: 1.45;
+  }
+
+  .front-body {
+    flex: 1;
+    padding: 22px 26px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .front-visual {
+    font-size: 52px;
+    text-align: center;
+    margin-bottom: 18px;
+    line-height: 1;
+  }
+  .front-hint {
+    font-size: 12px;
+    color: #9ab0b6;
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .front-footer {
+    padding: 14px 26px;
+    border-top: 1px solid #e8f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--teal);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .flip-icon { font-size: 16px; animation: pulse 2s infinite; }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  /* BACK */
+  .back {
+    background: var(--gray-light);
+    transform: rotateY(180deg);
+  }
+  .back-header {
+    padding: 16px 22px 14px;
+    background: white;
+    border-bottom: 2px solid var(--teal-light);
+  }
+  .back-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 4px;
+  }
+  .back-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a2e35;
+  }
+
+  .back-body {
+    flex: 1;
+    padding: 18px 22px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .def-box {
+    background: white;
+    border-radius: 12px;
+    padding: 14px 16px;
+    border-left: 4px solid var(--teal);
+  }
+  .def-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 6px;
+  }
+  .def-text {
+    font-size: 12.5px;
+    color: #2d3748;
+    line-height: 1.6;
+    font-weight: 500;
+  }
+  .def-text strong { color: var(--teal-dark); }
+
+  .key-points {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .key-point {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: white;
+    border-radius: 10px;
+    padding: 10px 14px;
+  }
+  .key-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--teal);
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .key-dot.orange { background: var(--orange); }
+  .key-dot.green { background: var(--green); }
+  .key-text {
+    font-size: 12px;
+    color: #2d3748;
+    line-height: 1.5;
+    font-weight: 500;
+  }
+  .key-text strong { font-weight: 700; }
+
+  .compare-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .compare-cell {
+    background: white;
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .compare-cell.reactive { border-top: 3px solid var(--orange); }
+  .compare-cell.creative { border-top: 3px solid var(--green); }
+  .compare-cell-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .compare-cell.reactive .compare-cell-label { color: var(--orange); }
+  .compare-cell.creative .compare-cell-label { color: var(--green); }
+  .compare-cell-text {
+    font-size: 11px;
+    color: #4a5568;
+    line-height: 1.55;
+    font-weight: 500;
+  }
+
+  .quote-box {
+    background: var(--teal);
+    border-radius: 12px;
+    padding: 14px 16px;
+    position: relative;
+  }
+  .quote-mark {
+    font-size: 28px;
+    color: rgba(255,255,255,0.3);
+    line-height: 0.7;
+    font-family: Georgia, serif;
+    position: absolute;
+    top: 12px; left: 14px;
+  }
+  .quote-text {
+    font-size: 11.5px;
+    color: white;
+    line-height: 1.6;
+    font-weight: 600;
+    font-style: italic;
+    padding-left: 16px;
+  }
+  .quote-author {
+    font-size: 10px;
+    color: rgba(255,255,255,0.7);
+    margin-top: 6px;
+    font-weight: 600;
+    padding-left: 16px;
+  }
+
+  .step-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .step-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    border-radius: 10px;
+    padding: 9px 14px;
+  }
+  .step-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--teal);
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: #2d3748;
+  }
+
+  /* Hint */
+  .flip-hint {
+    text-align: center;
+    font-size: 12px;
+    color: #9ab0b6;
+    font-weight: 600;
+  }
+
+  /* Progress bar */
+  .progress-bar-wrap {
+    max-width: 340px;
+    margin: 0 auto 10px;
+    height: 4px;
+    background: #d4eaed;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--teal);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">Lộ trình phát triển lãnh đạo</div>
+  <h1>Từ <span>"Phản ứng"</span> lên <span>"Sáng tạo"</span></h1>
+  <p>Nhấp vào thẻ để lật · 10 flashcard · Ôn luyện kiến thức</p>
+</div>
+
+<div class="dots" id="dots"></div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-bar-fill" id="progressBar" style="width:10%"></div>
+</div>
+
+<div class="nav">
+  <button class="nav-btn" id="prevBtn" onclick="changeCard(-1)">‹</button>
+  <span class="counter" id="counter">1 / 10</span>
+  <button class="nav-btn" id="nextBtn" onclick="changeCard(1)">›</button>
+</div>
+
+<div class="stage">
+  <div class="card-wrap" onclick="flipCard()">
+    <div class="card" id="theCard">
+      <div class="face front" id="frontFace"></div>
+      <div class="face back" id="backFace"></div>
+    </div>
+  </div>
+</div>
+
+<p class="flip-hint">👆 Nhấp vào thẻ để xem đáp án</p>
+
+<script>
+const cards = [
+  {
+    number: "01",
+    tag: "Định nghĩa",
+    icon: "🧭",
+    question: "Lãnh đạo được định nghĩa ngắn gọn qua 3 từ khoá nào?",
+    visual: "🎯",
+    backTitle: "Định nghĩa Lãnh đạo",
+    content: {
+      type: "definition",
+      text: "Lãnh đạo = <strong>Trách nhiệm</strong> + <strong>Ảnh hưởng</strong> + <strong>Mục tiêu</strong>",
+      subtext: "Bất kỳ ai chủ động nhận trách nhiệm và tạo ảnh hưởng tích cực đều có thể là lãnh đạo — không cần chức danh."
+    },
+    quote: { text: "Điều gì tạo động lực cho bạn khi dẫn dắt bản thân và người khác?", author: "Câu hỏi chiêm nghiệm" }
+  },
+  {
+    number: "02",
+    tag: "Mô hình",
+    icon: "📈",
+    question: "5 Giai đoạn Phát triển Lãnh đạo là gì? Thứ tự đúng là?",
+    visual: "🪜",
+    backTitle: "5 Giai đoạn Phát triển",
+    content: {
+      type: "steps",
+      steps: [
+        { num: "1", text: "Vị kỷ — Tôi là trung tâm" },
+        { num: "2", text: "Phản ứng — Tôi tìm kiếm sự chấp nhận" },
+        { num: "3", text: "Sáng tạo — Tôi hướng đến sứ mệnh" },
+        { num: "4", text: "Tích hợp — Tôi kiến tạo hệ thống" },
+        { num: "5", text: "Nhất thể — Tôi và toàn thể là MỘT" }
+      ]
+    },
+    quote: { text: "Hành trình phát triển lãnh đạo là hành trình mở rộng Tâm lượng và Tầm nhìn.", author: "" }
+  },
+  {
+    number: "03",
+    tag: "Trục chuyển dịch",
+    icon: "⚖️",
+    question: "Điều gì xảy ra khi cái tôi (Tự ngã) dần lùi lại phía sau?",
+    visual: "🌅",
+    backTitle: "Trục Tự ngã → Tâm lượng",
+    content: {
+      type: "keypoints",
+      points: [
+        { color: "orange", text: "Khi <strong>Tự ngã tăng cao</strong> → Tâm lượng và Tầm nhìn bị thu hẹp" },
+        { color: "green", text: "Khi <strong>Tự ngã giảm dần</strong> → Tâm lượng và Tầm nhìn mở rộng tương ứng" },
+        { color: "teal", text: "Chuyển từ Phản ứng → Sáng tạo là chuyển từ sống vì <strong>bản thân</strong> sang sống vì <strong>tập thể</strong>" }
+      ]
+    },
+    quote: { text: "Phá trừ cái tôi để phụng sự toàn thể với tình thương và trí tuệ chân thật.", author: "" }
+  },
+  {
+    number: "04",
+    tag: "Tư duy",
+    icon: "🧠",
+    question: "Cách tư duy của Lãnh đạo \"Phản ứng\" khác Lãnh đạo \"Sáng tạo\" thế nào?",
+    visual: "⚡",
+    backTitle: "Tư duy: Phản ứng vs Sáng tạo",
+    content: {
+      type: "compare",
+      items: [
+        {
+          type: "reactive",
+          label: "Phản ứng",
+          text: "Bị kéo bởi:\nNỗi sợ · Vấn đề · Mối đe dọa → Phản ứng"
+        },
+        {
+          type: "creative",
+          label: "Sáng tạo",
+          text: "Được dẫn bởi:\nĐam mê · Mục đích · Tầm nhìn → Hành động"
+        }
+      ]
+    },
+    quote: { text: "Năng lượng của Phản ứng dùng để chống lại vấn đề. Năng lượng của Sáng tạo dùng để tạo ra tương lai.", author: "" }
+  },
+  {
+    number: "05",
+    tag: "3 Khía cạnh",
+    icon: "🔄",
+    question: "Một người lãnh đạo cần quan tâm đến những phương diện nào?",
+    visual: "🌐",
+    backTitle: "Being · Relating · Achieving",
+    content: {
+      type: "steps",
+      steps: [
+        { num: "B", text: "Being — Tôi hiện diện thế nào?" },
+        { num: "R", text: "Relating — Tôi kết nối ra sao?" },
+        { num: "A", text: "Achieving — Tôi đạt mục tiêu bằng cách nào?" }
+      ]
+    },
+    quote: { text: "Lãnh đạo không chỉ là đạt mục tiêu, mà là hiện diện vững vàng và kết nối để nâng tầm người khác.", author: "" }
+  },
+  {
+    number: "06",
+    tag: "So sánh",
+    icon: "📊",
+    question: "Hiệu quả lãnh đạo thay đổi thế nào khi dịch chuyển qua các giai đoạn?",
+    visual: "📈",
+    backTitle: "Hiệu quả theo Giai đoạn",
+    content: {
+      type: "keypoints",
+      points: [
+        { color: "orange", text: "<strong>Phản ứng ~40%</strong> hiệu quả — năng lượng bị tiêu hao vào kiểm soát và nỗi sợ" },
+        { color: "teal", text: "<strong>Sáng tạo ~65%</strong> hiệu quả — dẫn dắt bằng mục đích và tin tưởng" },
+        { color: "green", text: "<strong>Tích hợp ~90%</strong> hiệu quả — kiến tạo hệ thống, nhân rộng tác động" }
+      ]
+    },
+    quote: { text: "Thay đổi dù nhỏ vẫn là thay đổi thật.", author: "" }
+  },
+  {
+    number: "07",
+    tag: "Chìa khoá 1",
+    icon: "🌟",
+    question: "\"Mục đích sống\" mang lại điều gì cho người lãnh đạo?",
+    visual: "🧭",
+    backTitle: "Mục đích sống (Life Purpose)",
+    content: {
+      type: "definition",
+      text: "Mục đích sống là <strong>kim chỉ nam</strong> — mang lại ý nghĩa và định hướng cho cách sống và dẫn dắt",
+      subtext: "Phản ứng: Mục đích xuất phát từ nỗi sợ và kỳ vọng bên ngoài\nSáng tạo: Mục đích đến từ giá trị sâu sắc bên trong"
+    },
+    quote: { text: "He who has a why to live for can bear almost any how.", author: "— Friedrich Nietzsche" }
+  },
+  {
+    number: "08",
+    tag: "Chìa khoá 2",
+    icon: "🪞",
+    question: "\"Chấp nhận bản thân\" nghĩa là gì? Nó khác gì với tự mãn?",
+    visual: "💎",
+    backTitle: "Tự chấp nhận (Self-Acceptance)",
+    content: {
+      type: "keypoints",
+      points: [
+        { color: "green", text: "<strong>Là:</strong> Trung thực nhìn nhận cả ưu và khuyết điểm → điểm khởi đầu khách quan cho thay đổi" },
+        { color: "orange", text: "<strong>Không phải:</strong> Tự mãn (Mình vậy là tốt rồi) hay buông xuôi (Mình quá tệ)" },
+        { color: "teal", text: "Chấp nhận tạo ra <strong>khoảng không gian</strong> để ta tự do lựa chọn cách phản ứng" }
+      ]
+    },
+    quote: { text: "Khi tôi chấp nhận chính mình, tôi được giải thoát khỏi gánh nặng của việc cần bạn chấp nhận tôi.", author: "— Steve Maraboli" }
+  },
+  {
+    number: "09",
+    tag: "Chìa khoá 3",
+    icon: "🦁",
+    question: "\"Dũng cảm sống thật\" là gì? Có phải là \"thích gì nói nấy\"?",
+    visual: "🔥",
+    backTitle: "Dũng cảm sống thật (Courageous Authenticity)",
+    content: {
+      type: "steps",
+      steps: [
+        { num: "1", text: "Biết điều đúng — nhận thức rõ ràng về giá trị" },
+        { num: "2", text: "Dám hành động — can đảm nói và làm theo điều đó" },
+        { num: "3", text: "Có trách nhiệm — ý thức tác động, hành động vì lợi ích chung" }
+      ]
+    },
+    quote: { text: "Việc được là chính mình trong một thế giới luôn muốn biến bạn thành người khác là thành tựu lớn nhất.", author: "— Ralph Waldo Emerson" }
+  },
+  {
+    number: "10",
+    tag: "Công thức tăng trưởng",
+    icon: "🌱",
+    question: "Làm thế nào để kiến thức hôm nay trở thành kỹ năng của ngày mai?",
+    visual: "♻️",
+    backTitle: "The Growth Loop",
+    content: {
+      type: "steps",
+      steps: [
+        { num: "1", text: "Học — tiếp nhận kiến thức và khái niệm mới" },
+        { num: "2", text: "Hành — áp dụng ngay vào thực tế" },
+        { num: "3", text: "Chiêm nghiệm — nhìn lại, rút ra bài học" },
+        { num: "4", text: "Củng cố — lặp lại, xây dựng thói quen" }
+      ]
+    },
+    quote: { text: "Khó khăn là dữ liệu để học hỏi và điều chỉnh — không phải là thất bại.", author: "" }
+  }
+];
+
+let current = 0;
+let flipped = false;
+const seen = new Set();
+
+function buildDots() {
+  const wrap = document.getElementById('dots');
+  wrap.innerHTML = '';
+  cards.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    wrap.appendChild(d);
+  });
+}
+
+function updateDots() {
+  const dots = document.querySelectorAll('.dot');
+  dots.forEach((d, i) => {
+    d.className = 'dot';
+    if (i === current) d.classList.add('active');
+    else if (seen.has(i)) d.classList.add('done');
+  });
+}
+
+function renderFront(card) {
+  return `
+    <div class="front-top">
+      <div class="front-top-icon">${card.icon}</div>
+      <div>
+        <div class="card-number">Thẻ ${card.number}</div>
+        <div class="front-tag">${card.tag}</div>
+        <div class="front-question">${card.question}</div>
+      </div>
+    </div>
+    <div class="front-body">
+      <div class="front-visual">${card.visual}</div>
+      <div class="front-hint">Nhấp để xem câu trả lời</div>
+    </div>
+    <div class="front-footer">
+      <span class="flip-icon">↻</span> LẬT THẺ
+    </div>
+  `;
+}
+
+function renderBack(card) {
+  let contentHtml = '';
+  const c = card.content;
+
+  if (c.type === 'definition') {
+    contentHtml = `
+      <div class="def-box">
+        <div class="def-label">Định nghĩa</div>
+        <div class="def-text">${c.text}</div>
+      </div>
+      ${c.subtext ? `<div class="def-box" style="border-left-color:#7bbec8">
+        <div class="def-text" style="white-space:pre-line;color:#4a5568">${c.subtext}</div>
+      </div>` : ''}
+    `;
+  } else if (c.type === 'keypoints') {
+    contentHtml = `<div class="key-points">` +
+      c.points.map(p => `
+        <div class="key-point">
+          <div class="key-dot ${p.color}"></div>
+          <div class="key-text">${p.text}</div>
+        </div>
+      `).join('') + `</div>`;
+  } else if (c.type === 'compare') {
+    contentHtml = `<div class="compare-row">` +
+      c.items.map(item => `
+        <div class="compare-cell ${item.type}">
+          <div class="compare-cell-label">${item.label}</div>
+          <div class="compare-cell-text" style="white-space:pre-line">${item.text}</div>
+        </div>
+      `).join('') + `</div>`;
+  } else if (c.type === 'steps') {
+    contentHtml = `<div class="step-list">` +
+      c.steps.map(s => `
+        <div class="step-item">
+          <div class="step-num">${s.num}</div>
+          <div class="step-text">${s.text}</div>
+        </div>
+      `).join('') + `</div>`;
+  }
+
+  const quoteHtml = card.quote ? `
+    <div class="quote-box">
+      <div class="quote-mark">&ldquo;</div>
+      <div class="quote-text">${card.quote.text}</div>
+      ${card.quote.author ? `<div class="quote-author">${card.quote.author}</div>` : ''}
+    </div>
+  ` : '';
+
+  return `
+    <div class="back-header">
+      <div class="back-label">Đáp án · Thẻ ${card.number}</div>
+      <div class="back-title">${card.backTitle}</div>
+    </div>
+    <div class="back-body">
+      ${contentHtml}
+      ${quoteHtml}
+    </div>
+  `;
+}
+
+function render() {
+  const card = cards[current];
+  document.getElementById('frontFace').innerHTML = renderFront(card);
+  document.getElementById('backFace').innerHTML = renderBack(card);
+  document.getElementById('counter').textContent = `${current + 1} / ${cards.length}`;
+  document.getElementById('prevBtn').disabled = current === 0;
+  document.getElementById('nextBtn').disabled = current === cards.length - 1;
+  document.getElementById('progressBar').style.width = `${((current + 1) / cards.length) * 100}%`;
+  updateDots();
+}
+
+function flipCard() {
+  flipped = !flipped;
+  document.getElementById('theCard').classList.toggle('flipped', flipped);
+  if (flipped) seen.add(current);
+}
+
+function goTo(index) {
+  if (flipped) {
+    flipped = false;
+    document.getElementById('theCard').classList.remove('flipped');
+  }
+  current = index;
+  render();
+}
+
+function changeCard(dir) {
+  const next = current + dir;
+  if (next < 0 || next >= cards.length) return;
+  goTo(next);
+}
+
+buildDots();
+render();
+</script>
+</body>
+</html>
